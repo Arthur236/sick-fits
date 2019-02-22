@@ -14,7 +14,7 @@ class MyApp extends App {
    * getInitialProps is special next.js life cycle method that runs before render
    * Anything that is returned from this method is exposed via props
    */
-  static async getInitialprops({ Component, ctx }) {
+  static async getInitialProps({ Component, ctx }) {
     let pageProps = {};
 
     if (Component.getInitialProps) {
