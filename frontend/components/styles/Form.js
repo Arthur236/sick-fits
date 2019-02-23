@@ -20,10 +20,12 @@ const Form = styled.form`
   font-size: 1.5rem;
   line-height: 1.5;
   font-weight: 600;
+  
   label {
     display: block;
     margin-bottom: 1rem;
   }
+  
   input,
   textarea,
   select {
@@ -36,6 +38,12 @@ const Form = styled.form`
       border-color: ${props => props.theme.red};
     }
   }
+  
+  textarea {
+    resize: vertical;
+    height: 100px;
+  }
+  
   button,
   input[type='submit'] {
     width: auto;
@@ -46,6 +54,7 @@ const Form = styled.form`
     font-weight: 600;
     padding: 0.5rem 1.2rem;
   }
+  
   fieldset {
     border: 0;
     padding: 0;
