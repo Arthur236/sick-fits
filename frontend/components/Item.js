@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Title from './styles/Title';
 import ItemStyles from './styles/ItemStyles';
 import PriceTag from './styles/PriceTag';
+import DeleteItem from './DeleteItem';
 
 import formatMoney from '../lib/formatMoney';
 
@@ -30,12 +31,12 @@ class Item extends Component {
 
         <div className="buttonList">
           <Link href={{ pathname: 'update', query: { id: item.id } }}>
-            <a>Edit ✏️</a>
+            <a><i className="fas fa-edit"/> Edit️</a>
           </Link>
 
-          <button>Add To Cart 🛒</button>
+          <button><i className="fas fa-cart-plus"/> Add To Cart</button>
 
-          <button>Delete ❌</button>
+          <DeleteItem id={item.id}/>
         </div>
       </ItemStyles>
     );
