@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const { randomBytes } = require('crypto');
 const { promisify } = require('util');
 
+const { makeANiceEmail, transport } = require('../mail');
+
 const Mutations = {
   async createItem(parent, args, ctx, info) {
     // TODO: Check if user is logged in
@@ -110,7 +112,7 @@ const Mutations = {
 
   async requestReset(parent, args, ctx, info) {
     // Check if this is a real user
-    const user = await ctx.db.query.user({ where: { email: args.email }});
+    const user = await ctx.db.query.user({ where: { email: args.email } });
 
     if (!user) {
       throw new Error(`No such user found with email ${args.email}`);
@@ -130,7 +132,19 @@ const Mutations = {
     });
 
     // Email them the reset token
+    const mailRes = await transport.sendMail({
+      from: 'info@sickfits.com',
+      to: user.email,
+      subject: 'Password Reset Link',
+      html: makeANiceEmail(`
+      Your password reset token is here! \n\n 
+      <a href="${process.env.FRONTEND_URL}/reset?resetToken=${resetToken}">
+      Click here to reset your password
+      </a>
+      `)
+    });
 
+    // Return the message
     return { message: 'Password reset link will be sent.' };
   },
 
