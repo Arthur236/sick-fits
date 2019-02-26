@@ -20,6 +20,8 @@ type Mutation {
   requestReset(email: String!): SuccessMessage
 
   resetPassword(resetToken: String!, password: String!, confirmPassword: String!): User!
+
+  updatePermissions(permissions: [Permission], userId: ID!): User
 }
 
 type Query {
@@ -30,6 +32,8 @@ type Query {
   itemsConnection(where: ItemWhereUniqueInput): ItemConnection!
 
   me: User
+
+  users: [User]!
 }
 
 # Redefine our User type in Yoga to prevent sensitive fields from being accessed on the frontend
