@@ -9,7 +9,7 @@ const { hasPermission } = require('../utils');
 const Mutations = {
   async createItem(parent, args, ctx, info) {
     // Check if user is logged in
-    if(!ctx.request.userId) {
+    if (!ctx.request.userId) {
       throw new Error('You must be logged in to do that');
     }
 
@@ -49,10 +49,17 @@ const Mutations = {
     const where = { id: args.id };
 
     // Find the item
-    const item = await ctx.db.query.item({ where }, `{ id title }`);
+    const item = await ctx.db.query.item({ where }, `{ id title user { id } }`);
 
     // Check if they own that item or have permissions
-    // TDOD
+    const ownsItem = item.user.id === ctx.request.userId;
+    const hasPermissions = ctx.request.user.permissions.some(permission =>
+      ['ADMIN', 'ITEMDELETE'].includes(permission)
+    );
+
+    if (!ownsItem || !hasPermissions) {
+      throw new Error("You don't have permission to do that!");
+    }
 
     // Delete it
     return ctx.db.mutation.deleteItem({ where }, info);
