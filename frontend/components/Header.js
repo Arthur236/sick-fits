@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import NProgress from 'nprogress';
 
 import Nav from './Nav';
+import Cart from './Cart';
 
 /*
  * Listen to the routing events and update nprogress
@@ -76,7 +77,7 @@ const Header = () => (
       <p>Search</p>
     </div>
 
-    <div>Cart</div>
+    <Cart/>
   </StyledHeader>
 );
 
