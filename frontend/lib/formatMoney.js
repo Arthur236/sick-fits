@@ -1,7 +1,7 @@
 export default function(amount) {
   const options = {
     style: 'currency',
-    currency: 'KSH',
+    currency: 'KES',
     minimumFractionDigits: 0,
   };
 
