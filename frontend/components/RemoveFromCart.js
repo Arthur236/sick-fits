@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { Mutation } from "react-apollo";
+import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+
+import { CURRENT_USER_QUERY } from './User';
 
 const REMOVE_FROM_CART_MUTATION = gql`
   mutation REMOVE_FROM_CART_MUTATION($id: ID!) {
@@ -24,14 +26,40 @@ const BigButton = styled.button`
 `;
 
 class RemoveFromCart extends Component {
+  /*
+   * This gets called as soon as we get a response from the server after a mutation has been
+   * performed
+   */
+  update = (cache, payload) => {
+    // Read the cache
+    const data = cache.readQuery({
+      query: CURRENT_USER_QUERY
+    });
+
+    // Remove item from the cache
+    const cartItemId = payload.data.removeFromCart.id;
+    data.me.cart = data.me.cart.filter(cartItem => cartItem.id !== cartItemId);
+
+    // Write it back to the cache
+    cache.writeQuery({
+      query: CURRENT_USER_QUERY,
+      data,
+    })
+  };
+
   render() {
     return (
       <Mutation
         mutation={REMOVE_FROM_CART_MUTATION}
         variables={{ id: this.props.id }}
-        refetchQueries={[
-          { query: CURRENT_USER_QUERY }
-        ]}
+        update={this.update}
+        optimisticResponse={{
+          __typename: 'Mutation',
+          removeFromCart: {
+            __typename: 'CartItem',
+            id: this.props.id,
+          }
+        }}
       >
         {
           (removeFromCart, payload) => {
