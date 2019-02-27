@@ -6,6 +6,11 @@ import CartStyles from './styles/CartStyles';
 import Supreme from './styles/Supreme';
 import CloseButton from './styles/CloseButton';
 import SickButton from './styles/SickButton';
+import User from './User';
+import CartItem from './CartItem';
+
+import calcTotalPrice from '../lib/calcTotalPrice';
+import formatMoney from "../lib/formatMoney";
 
 const LOCAL_STATE_QUERY = gql`
   query {
@@ -21,39 +26,66 @@ const TOGGLE_CART_MUTATION = gql`
 
 const Cart = props => {
   return (
-    <Mutation mutation={TOGGLE_CART_MUTATION}>
+    <User>
       {
-        toggleCart => {
+        payload => {
+          const { data: { me } } = payload;
+
+          if (!me) {
+            return null;
+          }
+
           return (
-            <Query query={LOCAL_STATE_QUERY}>
+            <Mutation mutation={TOGGLE_CART_MUTATION}>
               {
-                payload => {
-                  const { data } = payload;
-
+                toggleCart => {
                   return (
-                    <CartStyles open={data.cartOpen}>
-                      <header>
-                        <CloseButton title="close" onClick={toggleCart}>&times;</CloseButton>
+                    <Query query={LOCAL_STATE_QUERY}>
+                      {
+                        payload => {
+                          const { data } = payload;
 
-                        <Supreme>Your Cart</Supreme>
+                          return (
+                            <CartStyles open={data.cartOpen}>
+                              <header>
+                                <CloseButton title="close" onClick={toggleCart}>
+                                  &times;
+                                </CloseButton>
 
-                        <p>You have __ items in your cart</p>
-                      </header>
+                                <Supreme>{me.name}'s Cart</Supreme>
 
-                      <footer>
-                        <p>KSH 20,000</p>
+                                <p>
+                                  You have {me.cart.length} item{me.cart.length === 1 ? '' : 's'} in
+                                  your cart
+                                </p>
+                              </header>
 
-                        <SickButton>Checkout</SickButton>
-                      </footer>
-                    </CartStyles>
+                              <ul>
+                                {
+                                  me.cart.map(cartItem => (
+                                    <CartItem key={cartItem.id} cartItem={cartItem}/>
+                                  ))
+                                }
+                              </ul>
+
+                              <footer>
+                                <p>{formatMoney(calcTotalPrice(me.cart))}</p>
+
+                                <SickButton>Checkout</SickButton>
+                              </footer>
+                            </CartStyles>
+                          );
+                        }
+                      }
+                    </Query>
                   );
                 }
               }
-            </Query>
+            </Mutation>
           );
         }
       }
-    </Mutation>
+    </User>
   );
 };
 

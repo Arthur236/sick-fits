@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Mutation } from "react-apollo";
 import gql from 'graphql-tag';
 
+import { CURRENT_USER_QUERY } from "./User";
+
 const ADD_TO_CART_MUTATION = gql`
   mutation ADD_TO_CART_MUTATION($id: ID!) {
     addToCart(id: $id) {
@@ -16,11 +18,17 @@ class AddToCart extends Component {
     const { id } = this.props;
 
     return (
-      <Mutation mutation={ADD_TO_CART_MUTATION} variables={{ id }}>
+      <Mutation
+        mutation={ADD_TO_CART_MUTATION}
+        variables={{ id }}
+        refetchQueries={[
+          { query: CURRENT_USER_QUERY }
+        ]}
+      >
         {
-          addToCart => (
-            <button onClick={addToCart}>
-              <i className="fas fa-cart-plus"/> Add To Cart
+          (addToCart, { loading }) => (
+            <button onClick={addToCart} disabled={loading}>
+              <i className="fas fa-cart-plus"/> Add{loading && 'ing'} To Cart
             </button>
           )
         }
