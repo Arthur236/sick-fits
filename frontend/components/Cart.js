@@ -1,6 +1,7 @@
 import React from 'react';
 import { Mutation, Query } from "react-apollo";
 import gql from 'graphql-tag';
+import { adopt } from 'react-adopt';
 
 import CartStyles from './styles/CartStyles';
 import Supreme from './styles/Supreme';
@@ -24,68 +25,61 @@ const TOGGLE_CART_MUTATION = gql`
   }
 `;
 
+/*
+ * Combine all the render props into one
+ */
+const Composed = adopt({
+  user: ({ render }) => <User>{render}</User>,
+  toggleCart: ({ render }) => <Mutation mutation={TOGGLE_CART_MUTATION}>{render}</Mutation>,
+  localState: ({ render }) => <Query query={LOCAL_STATE_QUERY}>{render}</Query>,
+});
+
 const Cart = props => {
   return (
-    <User>
+    <Composed>
       {
         payload => {
-          const { data: { me } } = payload;
+          const { user, toggleCart, localState } = payload;
+          const { me } = user.data;
+          const { data } = localState;
 
           if (!me) {
             return null;
           }
 
           return (
-            <Mutation mutation={TOGGLE_CART_MUTATION}>
-              {
-                toggleCart => {
-                  return (
-                    <Query query={LOCAL_STATE_QUERY}>
-                      {
-                        payload => {
-                          const { data } = payload;
+            <CartStyles open={data.cartOpen}>
+              <header>
+                <CloseButton title="close" onClick={toggleCart}>
+                  &times;
+                </CloseButton>
 
-                          return (
-                            <CartStyles open={data.cartOpen}>
-                              <header>
-                                <CloseButton title="close" onClick={toggleCart}>
-                                  &times;
-                                </CloseButton>
+                <Supreme>{me.name}'s Cart</Supreme>
 
-                                <Supreme>{me.name}'s Cart</Supreme>
+                <p>
+                  You have {me.cart.length} item{me.cart.length === 1 ? '' : 's'} in
+                  your cart
+                </p>
+              </header>
 
-                                <p>
-                                  You have {me.cart.length} item{me.cart.length === 1 ? '' : 's'} in
-                                  your cart
-                                </p>
-                              </header>
-
-                              <ul>
-                                {
-                                  me.cart.map(cartItem => (
-                                    <CartItem key={cartItem.id} cartItem={cartItem}/>
-                                  ))
-                                }
-                              </ul>
-
-                              <footer>
-                                <p>{formatMoney(calcTotalPrice(me.cart))}</p>
-
-                                <SickButton>Checkout</SickButton>
-                              </footer>
-                            </CartStyles>
-                          );
-                        }
-                      }
-                    </Query>
-                  );
+              <ul>
+                {
+                  me.cart.map(cartItem => (
+                    <CartItem key={cartItem.id} cartItem={cartItem}/>
+                  ))
                 }
-              }
-            </Mutation>
+              </ul>
+
+              <footer>
+                <p>{formatMoney(calcTotalPrice(me.cart))}</p>
+
+                <SickButton>Checkout</SickButton>
+              </footer>
+            </CartStyles>
           );
         }
       }
-    </User>
+    </Composed>
   );
 };
 
