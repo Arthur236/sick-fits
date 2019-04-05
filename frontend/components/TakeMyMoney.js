@@ -51,27 +51,34 @@ class TakeMyMoney extends React.Component {
   render() {
     return (
       <User>
-        {
-          payload => {
-            const { data: { me } } = payload;
+        {({ data: { me }, loading }) => {
+          if (loading) return null;
 
-            // Multiply the total by 100 since KES is not a zero-decimal currency on Stripe
-            return (
-              <StripeCheckout
-                amount={calcTotalPrice(me.cart) * 100}
-                name="Sick Fits"
-                description={`Order of ${totalItems(me.cart)} items!`}
-                image={me.cart.length && me.cart[0].item && me.cart[0].item.image}
-                stripeKey="pk_test_k9AOmBYwvJ65psyr2wO21ug3"
-                currency="KES"
-                email={me.email}
-                token={res => this.onToken(res, createOrder)}
-              >
-                {this.props.children}
-              </StripeCheckout>
-            );
-          }
-        }
+          return (
+            <Mutation
+              mutation={CREATE_ORDER_MUTATION}
+              refetchQueries={[{ query: CURRENT_USER_QUERY }]}
+            >
+              {
+                // Multiply the total by 100 since KES is not a zero-decimal currency on Stripe
+                createOrder => (
+                  <StripeCheckout
+                    amount={calcTotalPrice(me.cart) * 100}
+                    name="Sick Fits"
+                    description={`Order of ${totalItems(me.cart)} items!`}
+                    image={me.cart.length && me.cart[0].item && me.cart[0].item.image}
+                    stripeKey="pk_test_k9AOmBYwvJ65psyr2wO21ug3"
+                    currency="KES"
+                    email={me.email}
+                    token={res => this.onToken(res, createOrder)}
+                  >
+                    {this.props.children}
+                  </StripeCheckout>
+                )
+              }
+            </Mutation>
+          );
+        }}
       </User>
     );
   }
