@@ -332,8 +332,6 @@ const Mutations = {
       0
     );
 
-    console.log('Charging...', amount);
-
     // Create the stripe charge (turn token into money)
     const charge = await stripe.charges.create({
       amount,

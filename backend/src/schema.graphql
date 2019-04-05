@@ -40,6 +40,8 @@ type Query {
   me: User
 
   users: [User]!
+
+  order(id: ID!): Order
 }
 
 # Redefine our User type in Yoga to prevent sensitive fields from being accessed on the frontend

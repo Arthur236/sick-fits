@@ -2,7 +2,7 @@ export default function(amount) {
   const options = {
     style: 'currency',
     currency: 'KES',
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
   };
 
   const formatter = new Intl.NumberFormat('ke', options);
